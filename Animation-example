@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <style>
+        *{
+            margin:0px;
+            padding:0px;
+        }
+        html,body{
+            font-size:12px;
+        }
+        #wrap{
+            width:400px;
+            height:400px;
+            margin:0 auto;
+            margin-top:50px;
+            overflow: hidden;
+        }
+        #wrap ul{
+            width:100%;
+            height:100%;
+            list-style-type:none;
+            background:gray;
+        }
+        #wrap ul li{
+            width:120px;
+            height:120px;
+            float:left;
+            background:blue;
+            margin-left:10px;
+            margin-top:10px;
+            display:inline;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="wrap">。、
+        <ul>
+            <li style="background:green;"></li>
+            <li style="background:green;"></li>
+            <li style="background:green;"></li>
+            <li style="background:yellow;"></li>
+            <li style="background:yellow;"></li>
+            <li style="background:yellow;"></li>
+            <li></li>
+            <li></li>
+            <li></li>
+        </ul>
+    </div>
+
+    <script>
+        var oDiv = document.getElementById("wrap"),
+            oUl = document.getElementsByTagName("ul")[0],
+            oLis = oDiv.getElementsByTagName("li"),
+            pos = [],
+            zIndex = 1;
+
+        toLayout();
+
+        each(oLis,function(item,index,arr){
+            addEvent(item,"mouseover",function(){
+                var top = pos[index].top - (160-120)/ 2,
+                    left = pos[index].left - (160-120)/ 2;
+
+                item.style["zIndex"] = zIndex++;
+
+                constant(item,{
+                    top:top,
+                    left:left,
+                    width:160,
+                    height:160
+                },400);
+
+            });
+
+            addEvent(item,"mouseleave",function(){
+                constant(item,{
+                    top:pos[index].top,
+                    left:pos[index].left,
+                    width:120,
+                    height:120
+                },400)
+            })
+        });
+
+
+        //布局转化
+        function toLayout(){
+            oUl.style.position = "relative";
+
+            for(var i = 0,len = oLis.length ; i < len ; i++){
+                var top = oLis[i].offsetTop,
+                    left = oLis[i].offsetLeft;
+
+                pos.push({
+                   top:top,
+                   left:left
+                });
+            }
+
+            for(var i = 0,len = oLis.length ; i < len ; i++){
+                var item = oLis[i];
+                item.style.position = "absolute";
+                item.style.top = pos[i].top + "px";
+                item.style.left = pos[i].left + "px";
+                item.style.margin = "0px";
+            }
+        }
+
+        //兼容的each函数
+        function each(arr,fn){
+
+            arr = makeArray(arr);
+
+            if([].forEach){
+                arr.forEach(fn);
+            }else{
+                for(var i = 0 , len = arr.length ; i < len ; i++){
+                    fn.apply(arr,[arr[i],i,arr]);
+                }
+            }
+        }
+
+        //转化为普通数组
+        function makeArray(obj){
+            var tmp = [];
+
+            if(is(obj,"NodeList") || (obj.length && obj[0])){
+                for(var i = 0, len = obj.length ; i < len; i ++){
+                    tmp.push(obj[i]);
+                }
+            }else{
+                tmp = [obj];
+            }
+
+            return tmp;
+        }
+
+        //类型判断函数
+        function is(obj,type){
+            return Object.prototype.toString.call(obj) == "[object "+type+"]";
+        }
+
+        //匀速运动函数
+        function constant(target,json,speed,callback){
+            var timeScale = 1000 / 60,
+                count = speed / timeScale,
+                begin,scale;
+
+            if(target.timer){
+                clearInterval(target.timer);
+            }
+
+            //初始化步长值
+            for(var key in json){
+                begin = parseFloat(window.getComputedStyle(target,null)[key]);
+                scale = (json[key] - begin) / count;
+                target[key] = scale;
+            }
+
+            target.timer = setInterval(function(){
+                for(var key in json){
+                    var oldValue,newValue;
+
+                    oldValue = parseFloat(window.getComputedStyle(target,null)[key]);
+                    newValue = oldValue + target[key];
+
+                    if(Math.abs(newValue - json[key]) < 1){
+                        target.style[key] = json[key] + "px";
+                        clearInterval(target.timer);
+
+                        if(typeof callback == "function"){
+                            callback();
+                        }
+                    }
+
+                    target.style[key] = newValue + "px";
+                }
+            },timeScale);
+        };
+
+        //事件注册
+        function addEvent(target,eventName,callback){
+            var fnStr = callback.toString().replace(/\s+/g,'');
+
+            target[fnStr] = handler;
+
+            if(target.addEventListener){
+                target.addEventListener(eventName,handler,false);
+            }else if(target.attachEvent){
+                target.attachEvent("on"+eventName,handler);
+            }else{
+                target["on"+eventName] = handler;
+            }
+
+          function handler(ev){
+              var event = ev || window.event,
+                  stopPropagation = event.stopPropagation,
+                  preventDefault = event.preventDefault;
+
+              event.target = event.target || event.srcElement;
+              event.currentTarget = event.currentTarget || target;
+              event.stopPropagation = function(){
+                  if(!event.stopPropagation){
+                        event.cancelBubble = true;
+                  }else{
+                        stopPropagation.call(event);
+                  }
+              };
+              event.preventDefault = function(){
+                  if(!event.preventDefault){
+                      event.returnValue = false;
+                  }else{
+                      preventDefault.call(event);
+                  }
+              }
+
+              var flag = callback.call(target,event);
+
+              if(flag === false){
+                  event.stopPropagation();
+                  event.preventDefault();
+              }
+          }
+        }
+    </script>
+
+</body>
+</html>
