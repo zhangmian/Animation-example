@@ -1,0 +1,11 @@
+//兼容的each函数
+function each(arr,fn){
+    arr = makeArray(arr);
+    if([].forEach){
+        arr.forEach(fn);
+    }else{
+        for(var i = 0 , len = arr.length ; i < len ; i++){
+            fn.apply(arr,[arr[i],i,arr]);
+        }
+    }
+}
