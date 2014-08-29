@@ -1,0 +1,22 @@
+//布局转化
+function toLayout(){
+    oUl.style.position = "relative";
+
+    for(var i = 0,len = oLis.length ; i < len ; i++){
+        var top = oLis[i].offsetTop,
+            left = oLis[i].offsetLeft;
+
+        pos.push({
+            top:top,
+            left:left
+        });
+    }
+
+    for(var i = 0,len = oLis.length ; i < len ; i++){
+        var item = oLis[i];
+        item.style.position = "absolute";
+        item.style.top = pos[i].top + "px";
+        item.style.left = pos[i].left + "px";
+        item.style.margin = "0px";
+    }
+}
