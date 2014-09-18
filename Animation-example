@@ -62,7 +62,7 @@
         each(oLis,function(item,index,arr){
             addEvent(item,"mouseover",function(){
                 var top = pos[index].top - (160-120)/ 2,
-                    left = pos[index].left - (160-120)/ 2;
+                    left = pos[index].left - (160-120)/ 2;  //算中心点
 
                 item.style["zIndex"] = zIndex++;
 
@@ -103,7 +103,7 @@
             for(var i = 0,len = oLis.length ; i < len ; i++){
                 var item = oLis[i];
                 item.style.position = "absolute";
-                item.style.top = pos[i].top + "px";
+                item.style.top = pos[i].top + "px";  //算新的位置
                 item.style.left = pos[i].left + "px";
                 item.style.margin = "0px";
             }
